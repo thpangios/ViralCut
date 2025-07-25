@@ -4,10 +4,12 @@ FROM docker.n8n.io/n8nio/n8n:1.102.3
 # Switch to root to install stuff
 USER root
 
-# Install FFmpeg (needed for video processing)
-RUN apt-get update && apt-get install -y \
+# Install FFmpeg (Alpine Linux uses apk, not apt-get)
+RUN apk add --no-cache \
     ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+    python3 \
+    make \
+    g++
 
 # Install Remotion and video processing tools
 RUN npm install -g \
@@ -18,6 +20,14 @@ RUN npm install -g \
 # Create folder for our video templates
 RUN mkdir -p /home/node/remotion-templates
 COPY remotion-templates/ /home/node/remotion-templates/
+
+# Build the Remotion bundle
+WORKDIR /home/node/remotion-templates
+RUN npm install
+RUN npm run build
+
+# Switch back to original working directory
+WORKDIR /usr/local/lib/node_modules/n8n
 
 # Switch back to node user
 USER node
