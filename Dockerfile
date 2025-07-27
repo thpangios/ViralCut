@@ -1,36 +1,29 @@
-# Start with the n8n image you're already using
-FROM docker.n8n.io/n8nio/n8n:1.103.2
+# Use the latest n8n image as base
+FROM n8nio/n8n:latest
 
-# Switch to root to install stuff
+# Switch to root to install packages
 USER root
 
-# Install FFmpeg (Alpine Linux uses apk, not apt-get)
-RUN apk add --no-cache \
+# Install FFmpeg and video processing tools
+RUN apt-get update && \
+    apt-get install -y \
     ffmpeg \
-    python3 \
-    make \
-    g++
+    imagemagick \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Remotion and video processing tools
-RUN npm install -g \
-    remotion \
-    @remotion/renderer \
-    @remotion/cli
+# Create directories for video processing
+RUN mkdir -p /tmp/videos /tmp/clips /tmp/processing
+RUN chown -R node:node /tmp/videos /tmp/clips /tmp/processing
 
-# Create folder for our video templates
-RUN mkdir -p /home/node/remotion-templates
-COPY remotion-templates/ /home/node/remotion-templates/
-
-# Build the Remotion bundle
-WORKDIR /home/node/remotion-templates
-RUN npm install
-RUN npm run build
-
-# Switch back to original working directory
-WORKDIR /usr/local/lib/node_modules/n8n
+# Copy our custom video processing script
+COPY video-processor.sh /usr/local/bin/video-processor.sh
+RUN chmod +x /usr/local/bin/video-processor.sh
+RUN chown node:node /usr/local/bin/video-processor.sh
 
 # Switch back to node user
 USER node
 
-# Same ports as before
-EXPOSE 5678
+# Same entrypoint as original n8n
+ENTRYPOINT ["tini", "--", "/usr/local/bin/docker-entrypoint.sh"]
