@@ -1,4 +1,5 @@
-FROM docker.io/n8nio/n8n:latest
+# Start with the n8n image you're already using
+FROM docker.n8n.io/n8nio/n8n:1.103.2
 
 USER root
 
