@@ -1,17 +1,16 @@
 # Use the latest n8n image as base
-FROM n8nio/n8n:latest
+FROM docker.io/n8nio/n8n:latest
 
 # Switch to root to install packages
 USER root
 
-# Install FFmpeg and video processing tools
-RUN apt-get update && \
-    apt-get install -y \
+# Install FFmpeg and video processing tools (Alpine Linux uses apk)
+RUN apk add --no-cache \
     ffmpeg \
     imagemagick \
     curl \
     wget \
-    && rm -rf /var/lib/apt/lists/*
+    bash
 
 # Create directories for video processing
 RUN mkdir -p /tmp/videos /tmp/clips /tmp/processing
