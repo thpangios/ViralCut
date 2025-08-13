@@ -1,10 +1,10 @@
-# Use Debian-based n8n image to fix Telepilot compatibility
-FROM n8nio/n8n:latest-debian
+# Use OFFICIAL Debian-based n8n image from GHCR
+FROM ghcr.io/n8n-io/n8n:latest-debian
 
 # Switch to root to install build tools
 USER root
 
-# Update repos and install only essential build tools for native modules
+# Install essential build tools for native modules (should work with current repos)
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
