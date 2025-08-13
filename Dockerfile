@@ -1,5 +1,5 @@
 # Use Debian-based n8n image (NOT Alpine) to avoid musl build issues
-FROM docker.n8n.io/n8nio/n8n:1.107.0-debian
+FROM n8nio/n8n:latest-debian
 
 # Switch to root to install packages
 USER root
@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
 RUN mkdir -p /tmp/videos /tmp/clips /tmp/processing && \
     chown -R node:node /tmp/videos /tmp/clips /tmp/processing
 
-# Copy and setup our video processing script  
+# Copy and setup our video processing script
 COPY video-processor.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/video-processor.sh && \
     chown node:node /usr/local/bin/video-processor.sh
