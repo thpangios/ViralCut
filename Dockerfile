@@ -1,5 +1,5 @@
 # Use the SAME base image that was working
-FROM docker.n8n.io/n8nio/n8n:1.106.3
+FROM docker.n8n.io/n8nio/n8n:1.106.0
 
 # Switch to root to install packages
 USER root
@@ -9,8 +9,7 @@ RUN apk add --no-cache \
     ffmpeg \
     curl \
     bash \
-    coreutils \
-    npm
+    coreutils
 
 # Create directories for video processing
 RUN mkdir -p /tmp/videos /tmp/clips /tmp/processing && \
@@ -23,15 +22,6 @@ RUN chmod +x /usr/local/bin/video-processor.sh && \
 
 # Set the working directory (CRITICAL - this was missing!)
 WORKDIR /usr/local/lib/node_modules/n8n
-
-# Install Telepilot community nodes globally
-RUN npm install -g @telepilotco/n8n-nodes-telepilot
-
-# Alternative method: Install in n8n's custom nodes directory
-# RUN mkdir -p /home/node/.n8n/nodes && \
-#     cd /home/node/.n8n/nodes && \
-#     npm install @telepilotco/n8n-nodes-telepilot && \
-#     chown -R node:node /home/node/.n8n
 
 # Switch back to node user
 USER node
