@@ -1,5 +1,5 @@
 # Use the SAME base image that was working
-FROM docker.n8n.io/n8nio/n8n:1.106.0
+FROM docker.n8n.io/n8nio/n8n:1.107.0
 
 # Switch to root to install packages
 USER root
