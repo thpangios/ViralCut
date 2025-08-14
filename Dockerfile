@@ -1,15 +1,47 @@
-# Use the actual available Debian-based n8n image
-FROM n8nio/n8n:latest-debian
+# Use Node.js Debian image (glibc compatible)
+FROM node:20-bullseye
 
-# Switch to root to install custom node
+# Set environment variables
+ENV N8N_VERSION=latest
+ENV NODE_ENV=production
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libc6-dev \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create n8n user
+RUN useradd --create-home --shell /bin/bash node
+
+# Install n8n globally
+RUN npm install -g n8n@latest
+
+# Switch to node user
+USER node
+WORKDIR /home/node
+
+# Install TelePilot node in global n8n
 USER root
+RUN npm install -g @telepilotco/n8n-nodes-telepilot
 
-# Install Telepilot node in the correct location
-RUN cd /usr/local/lib/node_modules/n8n && \
-    npm install @telepilotco/n8n-nodes-telepilot
+# Create n8n directory
+RUN mkdir -p /home/node/.n8n
+RUN chown -R node:node /home/node/.n8n
 
-# Switch back to n8n user
+# Switch back to node user
 USER node
 
-# Start worker
-CMD ["n8n", "worker"]
+# Expose port
+EXPOSE 5678
+
+# Environment variables for Railway
+ENV N8N_HOST=0.0.0.0
+ENV N8N_PORT=5678
+ENV N8N_WORKERS_ENABLED=false
+
+# Start n8n (single container mode - no Redis needed)
+CMD ["n8n"]
